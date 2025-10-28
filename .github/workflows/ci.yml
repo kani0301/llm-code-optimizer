@@ -1,0 +1,25 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake gcc perf python3
+      - name: Build C target
+        run: |
+          mkdir build && cd build
+          cmake ..
+          make
+      - name: Run benchmark
+        run: python3 scripts/benchmark_runner.py
+      - name: Export results
+        run: python3 scripts/exporter.py
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: perf-results
+          path: results/
